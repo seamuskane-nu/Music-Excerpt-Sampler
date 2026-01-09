@@ -17,6 +17,7 @@ class ExcerptPlayer:
         self.file_path: str = ""
         self.start_time: float = 0.0
         self.end_time: float = 0.0
+        self.volume_db: float = 0.0
     
     def load_excerpt(self, file_path: str, start: float, end: float) -> None:
         """
@@ -38,6 +39,8 @@ class ExcerptPlayer:
 
         excerpt = audio[start_ms:end_ms]
         excerpt = excerpt.fade_in(5).fade_out(10)
+        excerpt = excerpt + self.volume_db
+
         self.current_audio = excerpt
         self.file_path = file_path
         self.start_time = start
@@ -94,7 +97,6 @@ class ExcerptPlayer:
             "start_time": self.start_time,
             "end_time": self.end_time
         }
-    
 
 
 if __name__ == "__main__":
