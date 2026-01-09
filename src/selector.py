@@ -2,7 +2,7 @@ import random
 import librosa
 from typing import Tuple, Optional
 
-def get_audio_info(file_path: str, cache: dict) -> Tuple[float, list[float]]:
+def get_audio_info(file_path: str) -> Tuple[float, list[float]]:
     """
     Get duration and onset times for an audio file.
     Uses cache if available, otherwise analyzes file.
@@ -39,7 +39,7 @@ def detect_onsets(file_path: str) -> Tuple[float, list[float]]:
     return duration, list(onsets)
 
 
-def choose_random_excerpt(file_path: str, excerpt_length: float, cache: dict) -> Tuple[float, float]:
+def choose_random_excerpt(file_path: str, excerpt_length: float) -> Tuple[float, float]:
     """
     Choose a random excerpt starting at an onset (if available).
     
@@ -52,7 +52,7 @@ def choose_random_excerpt(file_path: str, excerpt_length: float, cache: dict) ->
         Tuple of (start_time, end_time) in seconds
     """
 
-    duration_onsets = get_audio_info(file_path, cache)
+    duration_onsets = get_audio_info(file_path)
     duration, onsets = duration_onsets
     random_excerpt = choose_excerpt_from_onsets(onsets, excerpt_length,duration)
     if random_excerpt is None:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     print("=== Testing selector.py ===\n")
     
     # Test the full pipeline
-    start, end = choose_random_excerpt(test_file, excerpt_length=5.0, cache={})
+    start, end = choose_random_excerpt(test_file, excerpt_length=5.0)
     
     print(f"\n✓ Selected excerpt: {start:.2f}s - {end:.2f}s")
     print(f"  Duration: {end - start:.2f}s")

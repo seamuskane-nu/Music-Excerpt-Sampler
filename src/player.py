@@ -1,5 +1,5 @@
 from pydub import AudioSegment
-import simpleaudio as sa
+import pygame
 from typing import Optional
 import os
 
@@ -13,11 +13,14 @@ class ExcerptPlayer:
     
     def __init__(self):
         self.current_audio: Optional[AudioSegment] = None
-        self.playback_obj: Optional[sa.PlayObject] = None
         self.file_path: str = ""
         self.start_time: float = 0.0
         self.end_time: float = 0.0
-        self.volume_db: float = 0.0
+        self.temp_file: str = "temp_excerpt.wav"
+        self.volume: float = 0.75
+
+        pygame.mixer.init()
+        pygame.mixer.music.set_volume(self.volume)
     
     def load_excerpt(self, file_path: str, start: float, end: float) -> None:
         """
@@ -39,7 +42,6 @@ class ExcerptPlayer:
 
         excerpt = audio[start_ms:end_ms]
         excerpt = excerpt.fade_in(5).fade_out(10)
-        excerpt = excerpt + self.volume_db
 
         self.current_audio = excerpt
         self.file_path = file_path
@@ -53,24 +55,20 @@ class ExcerptPlayer:
         if self.current_audio is None:
             print("No audio loaded")
             return
-        if self.playback_obj is not None:
-            self.playback_obj.stop()
+        
+        pygame.mixer.music.stop()
 
-        self.playback_obj = sa.play_buffer(
-            self.current_audio.raw_data,
-            num_channels=self.current_audio.channels,
-            bytes_per_sample=2,
-            sample_rate=self.current_audio.frame_rate
-            )
+        self.current_audio.export(self.temp_file, format="wav")
+
+        pygame.mixer.music.load(self.temp_file)
+        pygame.mixer.music.play()
 
     
     def stop(self) -> None:
         """
         Stop current playback.
         """
-        if self.playback_obj is not None:
-            self.playback_obj.stop()
-            self.playback_obj = None
+        pygame.mixer.music.stop()
 
     
     def is_playing(self) -> bool:
@@ -80,10 +78,45 @@ class ExcerptPlayer:
         Returns:
             True if playing, False otherwise
         """
-        if self.playback_obj is not None:
-            return self.playback_obj.is_playing()
-        return False
+        return pygame.mixer.music.get_busy()
+    
+    def set_volume(self, volume:float) -> None:
+        """
+        Docstring for set_volume
+        
+        :param self: Description
+        :param volume: Description
+        :type volume: float
+        """
+        volume = max(0.0, min(1.0, volume))
+        self.volume = volume
+        pygame.mixer.music.set_volume(volume)
 
+    def set_volume_percent(self, percent: float) -> None:
+        """
+        Docstring for set_volume_percent
+        
+        :param self: Description
+        :param percent: Description
+        :type percent: float
+        """
+        self.set_volume(percent/100.0)
+
+    def get_volume(self) -> None:
+        """
+        Docstring for get_volume
+        
+        :param self: Description
+        """
+        return self.volume
+    
+    def get_volume_percent(self) -> None:
+        """
+        Docstring for get_volume
+        
+        :param self: Description
+        """
+        return self.volume * 100
     
     def get_info(self) -> dict:
         """
@@ -95,33 +128,29 @@ class ExcerptPlayer:
         return {
             "file_path": self.file_path,
             "start_time": self.start_time,
-            "end_time": self.end_time
+            "end_time": self.end_time,
+            "volume": self.volume
         }
 
 
 if __name__ == "__main__":
+    import time
+    
     player = ExcerptPlayer()
     
-    # Use a real file path from your music library
     test_file = r"C:\Users\seamu\OneDrive\Desktop\Music\HOME - Before The Night (FLAC)\nnmmmmn!.wav"
     
     print("Loading excerpt...")
-    player.load_excerpt(test_file, start=10.0, end=15.0)
+    player.load_excerpt(test_file, start=10.0, end=25.0)  # 15 second excerpt
     
-    info = player.get_info()
-    print(f"Loaded: {info['file_path']}")
-    print(f"Time: {info['start_time']:.2f}s - {info['end_time']:.2f}s")
-    
-    print("\nPlaying 5-second excerpt...")
+    print("Playing with volume changes during playback...")
     player.play()
     
-    import time
-    time.sleep(2)
-    print(f"Is still playing? {player.is_playing()}")
+    # Change volume while playing
+    for i in range(10):
+        volume = 1.0 - (i * 0.1)  # Fade from 100% to 10%
+        player.set_volume(volume)
+        print(f"Volume: {volume*100:.0f}%")
+        time.sleep(1.5)
     
-    time.sleep(3)
-    print(f"Is still playing? {player.is_playing()}")
-    
-    print("\nStopping...")
-    player.stop()
     print("Done!")
