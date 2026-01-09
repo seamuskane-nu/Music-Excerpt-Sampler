@@ -29,6 +29,15 @@ def detect_onsets(file_path: str) -> Tuple[float, list[float]]:
         Tuple of (duration, list of onset times in seconds)
     """
 
+    y, sr = librosa.load(file_path, sr=None, mono=True)
+    duration = librosa.get_duration(y=y, sr=sr)
+
+    onsets = librosa.onset.onset_detect(
+        y=y, sr=sr, units="time", backtrack=True
+    )
+
+    return duration, list(onsets)
+
 
 def choose_random_excerpt(file_path: str, excerpt_length: float, cache: dict) -> Tuple[float, float]:
     """
@@ -86,3 +95,14 @@ def fallback_random_excerpt(duration: float, excerpt_length: float) -> Tuple[flo
     end = start + excerpt_length
     return start, end
 
+if __name__ == "__main__":
+    # Test with a real file
+    test_file = r"C:\Users\seamu\OneDrive\Desktop\Music\HOME - Before The Night (FLAC)\HOME - Before The Night - 01 We're Finally Landing.flac"
+    
+    print("=== Testing selector.py ===\n")
+    
+    # Test the full pipeline
+    start, end = choose_random_excerpt(test_file, excerpt_length=5.0, cache={})
+    
+    print(f"\n✓ Selected excerpt: {start:.2f}s - {end:.2f}s")
+    print(f"  Duration: {end - start:.2f}s")
