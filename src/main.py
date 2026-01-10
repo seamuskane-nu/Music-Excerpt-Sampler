@@ -1,15 +1,18 @@
+"""Main loop Module"""
 import sys
 import random
-from pathlib import Path
 
-# Your modules
 from scanner import scan_music_library
-from selector import choose_random_excerpt_bars, choose_random_excerpt_manual, choose_random_excerpt_beats
+from selector import choose_random_excerpt_bars
+from selector import choose_random_excerpt_manual, choose_random_excerpt_beats
 from player import ExcerptPlayer
-from config import MUSIC_FOLDER, EXCERPT_LENGTH, CACHE_FILE, EXPORTS_FOLDER
+from config import EXCERPT_LENGTH, EXPORTS_FOLDER
 from exporter import export_excerpt
+from cache import load_cache, save_cache
+
 
 class MusicExcerptSampler:
+    """Initialized class var and states"""
     def __init__(self):
         # Initialize all the components
         self.files: list[str] = []
@@ -24,8 +27,8 @@ class MusicExcerptSampler:
         self.num_bars: int = 2
 
     def initialize(self):
-        # Scan library, load cache
-        from cache import load_cache
+        """Scan library, load cache"""
+
 
         print("Scanning music library...")
         self.files = scan_music_library()
@@ -37,6 +40,7 @@ class MusicExcerptSampler:
         print(f"Caches has {len(self.cache)} entries")
 
     def toggle_mode(self):
+        """Toggles mode between beat locked, onset bar length, and manual onset"""
         if self.mode == "beat":
             self.mode = "bar"
         elif self.mode == "bar":
@@ -52,7 +56,7 @@ class MusicExcerptSampler:
             print(f"→ Switched to manual onset mode ({EXCERPT_LENGTH}s fixed)")
 
     def select_random_excerpt(self):
-        # Pick random file + random excerpt
+        """ Pick random file + random excerpt"""
 
         if self.player.is_playing():
             self.player.stop()
@@ -76,12 +80,12 @@ class MusicExcerptSampler:
         self.current_file = random_file
 
         duration = end - start
-        self.last_mode_info = mode_info 
+        self.last_mode_info = mode_info
         print(f"{random_file} was selected")
         print(f"Excerpt: {duration:.2f}s ({mode_info})")
 
     def toggle_playback(self):
-        # Play or pause
+        """Play or pause"""
         if not self.current_file:
             print("nothing loaded")
             return
@@ -93,7 +97,7 @@ class MusicExcerptSampler:
             self.is_playing = True
 
     def export_current(self):
-        # Save excerpt to file
+        """Save excerpt to file"""
         if self.current_file == "":
             print("Nothing loaded")
             return
@@ -104,13 +108,13 @@ class MusicExcerptSampler:
             print(f"Export failed: {e}")
 
     def change_volume(self, adjustment):
-        # Increase/decrease volume
+        """Increase/decrease volume"""
         current_volume = self.player.get_volume_percent()
         new_volume = max(0.0, min(100.0, (adjustment + current_volume)))
         self.player.set_volume_percent(new_volume)
 
     def show_menu(self):
-        # Display current state and options
+        """Display current state and options"""
         info = self.player.get_info()
         if self.is_playing is False:
             playing = "Paused"
@@ -122,7 +126,9 @@ class MusicExcerptSampler:
         duration = info['end_time'] - info['start_time']
 
         if self.last_mode_info:
-            print(f"Excerpt: {info['start_time']} - {info['end_time']} [{duration}s ({self.last_mode_info})]")
+            print(
+                f"Excerpt: {info['start_time']} - {info['end_time']}" 
+                f"[{duration}s ({self.last_mode_info})]")
         else:
             print(f"Excerpt: {info['start_time']:.2f}s - {info['end_time']:.2f}s [{duration:.2f}s]")
 
@@ -138,7 +144,7 @@ class MusicExcerptSampler:
 
 
     def run(self):
-        # Main loop - handle user input
+        """Main loop - handle user input"""
 
         while True:
             self.show_menu()
@@ -157,7 +163,6 @@ class MusicExcerptSampler:
             elif choice == 'b':
                 self.toggle_mode()
             elif choice == 'q':
-                from cache import save_cache
                 print("Saving cache...")
                 save_cache(self.cache)
                 print("Bye!")
@@ -173,4 +178,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

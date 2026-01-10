@@ -1,3 +1,5 @@
+"""Cache Module"""
+
 import json
 import os
 from pathlib import Path
@@ -13,7 +15,7 @@ def load_cache() -> dict:
     """
     if Path(CACHE_FILE).exists():
         try:
-            with open(CACHE_FILE, 'r') as f:
+            with open(CACHE_FILE, 'r', encoding="UTF8") as f:
                 return json.load(f)
         except json.JSONDecodeError:
             print("Cache file corrupted")
@@ -29,7 +31,7 @@ def save_cache(cache: dict) -> None:
         cache: Dictionary of onset data to save
     """
     try:
-        with open(CACHE_FILE, 'w') as f:
+        with open(CACHE_FILE, 'w', encoding="UTF8") as f:
             json.dump(cache, f, indent=2)
     except Exception as e:
         print(f"Failed to save cache: {e}")
@@ -44,7 +46,8 @@ def get_cached_onsets(file_path: str, cache: dict) -> Optional[dict]:
         
     Returns:
         Cached data dict or None if invalid/missing
-        Format: {"duration": float, "onsets": [float], "bpm": float, beats: list[float] "last_modified": int}
+        Format: {"duration": float, "onsets": [float], 
+            "bpm": float, beats: list[float] "last_modified": int}
     """
     if file_path not in cache:
         return None
@@ -62,7 +65,8 @@ def get_cached_onsets(file_path: str, cache: dict) -> Optional[dict]:
     except (FileNotFoundError, KeyError):
         return None
 
-def update_cache(file_path: str, duration: float, onsets: list[float], bpm: float, beats: list[float], cache: dict) -> None:
+def update_cache(file_path: str, duration: float, onsets: list[float],
+                  bpm: float, beats: list[float], cache: dict) -> None:
     """
     Add/update onset data for a file in cache.
     

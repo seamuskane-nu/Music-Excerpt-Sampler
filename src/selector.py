@@ -1,6 +1,7 @@
+"""Excerpt Selecting Module"""
+from typing import Tuple, Optional
 import random
 import librosa
-from typing import Tuple, Optional
 from cache import get_cached_onsets, update_cache
 
 
@@ -91,7 +92,8 @@ def choose_random_excerpt_manual(
         return fallback_random_excerpt(duration, excerpt_length)
     return random_excerpt
 
-def choose_random_excerpt_bars(file_path: str, cache: dict, num_bars: int = 4) -> Tuple[float, float, float]:
+def choose_random_excerpt_bars(
+        file_path: str, cache: dict, num_bars: int = 4) -> Tuple[float, float, float]:
     """Choose excerpt based on BPM (N bars long)."""
     # Get BPM, calculate length, choose onset
     duration, onsets, bpm = get_audio_info(file_path, cache)
@@ -104,7 +106,8 @@ def choose_random_excerpt_bars(file_path: str, cache: dict, num_bars: int = 4) -
     start, end = random_excerpt
     return start, end, bpm
 
-def choose_random_excerpt_beats(file_path: str, cache: dict, num_bars: int = 2) -> Tuple[float, float, float]:
+def choose_random_excerpt_beats(
+        file_path: str, cache: dict, num_bars: int = 2) -> Tuple[float, float, float]:
     """
     Choose excerpt aligned to beats (N beats long).
     
@@ -183,7 +186,7 @@ def detect_bpm(file_path: str) -> float:
     """
     try:
         y, sr = librosa.load(file_path, sr=None, mono=True)
-        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+        tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
 
         bpm = float(tempo[0]) if len(tempo) > 0 else 120.0
 
@@ -194,7 +197,7 @@ def detect_bpm(file_path: str) -> float:
     except Exception as e:
         print(f"  Warning: BPM detection failed ({e}), using 120")
         return 120
-    
+
 def detect_beats(file_path: str) -> Tuple[list[float], float]:
     """
     Detect beat positions and BPM.

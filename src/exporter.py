@@ -1,6 +1,6 @@
-from pydub import AudioSegment
+"""Exporting File Module"""
+
 from pathlib import Path
-import os
 from datetime import datetime
 from player import ExcerptPlayer
 
@@ -49,4 +49,3 @@ def ensure_export_folder(folder: str) -> None:
     path = Path(folder)
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
-
