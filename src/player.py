@@ -3,10 +3,12 @@ import pygame
 from typing import Optional
 import os
 
+#Uncomment on windows only
+"""
 AudioSegment.converter = r"C:\ffmpeg\bin\ffmpeg.exe"
 AudioSegment.ffprobe = r"C:\ffmpeg\bin\ffprobe.exe"
-
 os.environ["PATH"] += os.pathsep + r"C:\ffmpeg\bin"
+"""
 
 class ExcerptPlayer:
     """Handles audio loading, slicing, and playback."""
