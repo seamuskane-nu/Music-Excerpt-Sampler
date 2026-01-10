@@ -44,7 +44,7 @@ def get_cached_onsets(file_path: str, cache: dict) -> Optional[dict]:
         
     Returns:
         Cached data dict or None if invalid/missing
-        Format: {"duration": float, "onsets": [float], "last_modified": int}
+        Format: {"duration": float, "onsets": [float], "bpm": float, beats: list[float] "last_modified": int}
     """
     if file_path not in cache:
         return None
@@ -62,7 +62,7 @@ def get_cached_onsets(file_path: str, cache: dict) -> Optional[dict]:
     except (FileNotFoundError, KeyError):
         return None
 
-def update_cache(file_path: str, duration: float, onsets: list[float], cache: dict) -> None:
+def update_cache(file_path: str, duration: float, onsets: list[float], bpm: float, beats: list[float], cache: dict) -> None:
     """
     Add/update onset data for a file in cache.
     
@@ -75,6 +75,7 @@ def update_cache(file_path: str, duration: float, onsets: list[float], cache: di
     current = os.path.getmtime(file_path)
     file_dict = {"duration": duration,
                  "onsets": onsets,
-                 "last_modified": current}
+                 "beats": beats,
+                 "last_modified": current,
+                 "bpm": bpm}
     cache[file_path] = file_dict
-    
