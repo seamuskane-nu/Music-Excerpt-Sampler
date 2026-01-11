@@ -24,7 +24,9 @@ class MusicExcerptSampler:
         self.last_mode_info: str = ""
         self.mode: str = "beat"
         # beat, bar, onset
-        self.num_bars: int = 2
+        self.num_bars: int = 4
+        self.algorithm:str = "librosa"
+
 
     def initialize(self):
         """Scan library, load cache"""
@@ -55,6 +57,19 @@ class MusicExcerptSampler:
         else:
             print(f"→ Switched to manual onset mode ({EXCERPT_LENGTH}s fixed)")
 
+    def toggle_algorithm(self):
+        """
+        toggles between librosa and my onset detection
+        """
+        if self.algorithm == "librosa":
+            self.algorithm = "inhouse"
+            print("Switched to my onset detection! :D :D :D")
+        elif self.algorithm == "inhouse":
+            self.algorithm = "librosa"
+            print("Switched to Librosa onset detection ;(")
+
+
+
     def select_random_excerpt(self):
         """ Pick random file + random excerpt"""
 
@@ -70,10 +85,11 @@ class MusicExcerptSampler:
 
         elif self.mode == "bar":
             start, end, bpm = choose_random_excerpt_bars(
-                random_file, self.cache, num_bars=self.num_bars)
+                random_file, self.cache, num_bars=self.num_bars, algorithm=self.algorithm)
             mode_info = f"{self.num_bars} bar mode at {bpm:.1f} BPM"
         else:
-            start, end = choose_random_excerpt_manual(random_file, EXCERPT_LENGTH, self.cache,)
+            start, end = choose_random_excerpt_manual(
+                random_file, EXCERPT_LENGTH, self.cache, algorithm=self.algorithm)
             mode_info = f"manual onset mode ({EXCERPT_LENGTH}s)"
 
         self.player.load_excerpt(random_file, start, end)
@@ -139,6 +155,7 @@ class MusicExcerptSampler:
         print("[P] Play/Pause")
         print("[+] Volume up   [-] Volume down")
         print("[B] Toggle mode")
+        print("[A] Toggle onset detection algorithm")
         print("[E] Export current excerpt")
         print("[Q] Quit\n")
 
@@ -162,6 +179,8 @@ class MusicExcerptSampler:
                 self.export_current()
             elif choice == 'b':
                 self.toggle_mode()
+            elif choice == 'a':
+                self.toggle_algorithm()
             elif choice == 'q':
                 print("Saving cache...")
                 save_cache(self.cache)

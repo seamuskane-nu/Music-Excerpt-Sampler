@@ -3,9 +3,12 @@ from typing import Tuple, Optional
 import random
 import librosa
 from cache import get_cached_onsets, update_cache
+from fft_onset import detect_onsets_inhouse
 
 
-def get_audio_info(file_path: str, cache: dict) -> Tuple[float, list[float], float]:
+def get_audio_info(file_path: str, 
+                   cache: dict, 
+                   algorithm: str = "librosa") -> Tuple[float, list[float], float]:
     """
     Get duration and onset times for an audio file.
     Uses cache if available, otherwise analyzes file.
@@ -19,17 +22,22 @@ def get_audio_info(file_path: str, cache: dict) -> Tuple[float, list[float], flo
     """
 
     cached = get_cached_onsets(file_path, cache)
-    if cached is not None:
-        print("(using cached onsets)")
-        return cached["duration"], cached["onsets"], cached["bpm"]
 
-    print("(analyzing onsets)")
-    duration, onsets = detect_onsets(file_path)
+    if cached is not None:
+        onset_key = f"onsets_{algorithm}"
+        if onset_key in cached:
+            return cached["duration"], cached[onset_key], cached["bpm"]
     beats, bpm = detect_beats(file_path)
 
-    update_cache(file_path, duration, onsets, bpm, beats, cache)
+    if algorithm == "librosa":
+        duration, onsets = detect_onsets_librosa(file_path)
 
+    else:
+        duration, onsets = detect_onsets_inhouse(file_path)
+
+    update_cache(file_path, duration, bpm, beats, cache, onsets, algorithm)
     return duration, onsets, bpm
+
 
 def get_beats_info(file_path: str, cache: dict) -> Tuple[list[float], float]:
     """
@@ -50,7 +58,7 @@ def get_beats_info(file_path: str, cache: dict) -> Tuple[list[float], float]:
     return beats, bpm
 
 
-def detect_onsets(file_path: str) -> Tuple[float, list[float]]:
+def detect_onsets_librosa(file_path: str) -> Tuple[float, list[float]]:
     """
     Analyze audio file for onset times using librosa.
     
@@ -72,7 +80,7 @@ def detect_onsets(file_path: str) -> Tuple[float, list[float]]:
 
 
 def choose_random_excerpt_manual(
-        file_path: str, excerpt_length: float, cache: dict) -> Tuple[float, float]:
+        file_path: str, excerpt_length: float, cache: dict, algorithm: str = "librosa") -> Tuple[float, float]:
     """
     Choose a random excerpt starting at an onset (if available).
     
@@ -85,7 +93,7 @@ def choose_random_excerpt_manual(
         Tuple of (start_time, end_time) in seconds
     """
 
-    duration_onsets = get_audio_info(file_path, cache)
+    duration_onsets = get_audio_info(file_path, cache, algorithm)
     duration, onsets, _ = duration_onsets
     random_excerpt = choose_excerpt_from_onsets(onsets, excerpt_length,duration)
     if random_excerpt is None:
@@ -93,10 +101,10 @@ def choose_random_excerpt_manual(
     return random_excerpt
 
 def choose_random_excerpt_bars(
-        file_path: str, cache: dict, num_bars: int = 4) -> Tuple[float, float, float]:
+        file_path: str, cache: dict, num_bars: int = 4, algorithm: str = "librosa") -> Tuple[float, float, float]:
     """Choose excerpt based on BPM (N bars long)."""
     # Get BPM, calculate length, choose onset
-    duration, onsets, bpm = get_audio_info(file_path, cache)
+    duration, onsets, bpm = get_audio_info(file_path, cache, algorithm)
     excerpt_length = calculate_excerpt_length_from_bars(bpm, num_bars)
     random_excerpt = choose_excerpt_from_onsets(onsets, excerpt_length, duration)
 
