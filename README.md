@@ -6,12 +6,12 @@ music library using beat-detection, BPM analysis, and custom onset detection alg
 ## Features
 
 - **Three Selection Modes:**
-  - **Beat Mode:** Beat mode will start on a random beat in the song, and play n number of bars from it (default = 4)
-  - **Bar Mode:** Bar mode will choose a random onset/transient, and play n number of bars from it (for context in music, length matters)
+  - **Beat Mode:** Beat mode will start on a random beat in the song, and play x number of bars from it (default = 4)
+  - **Bar Mode:** Bar mode will choose a random onset/transient, and play x number of bars from it (for context in music, length matters)
   - **Manual Mode:** Manual onset mode will choose a random onset/transient, and play a set excerpt length from it (default = 8seconds)
 
 - **Dual Onset Detection Algorithms:**
-  - **Librosa:** Librosa is an industry standard for python implementation of DSP with algorithms yielding reliable results
+  - **Librosa:** Librosa is an industry standard for Python implementation of DSP with algorithms yielding reliable results
 
   - **Custom FFT-Based:**  My custom FFT-based algorithm uses a log magnitude spectral flux approach,
                            with easily tunable parameters to allow the user to tailor their results.
@@ -20,10 +20,10 @@ music library using beat-detection, BPM analysis, and custom onset detection alg
                              and the onsets from the respective onset algorithm are saved. When the same file is loaded again,
                              the computation to calculate onsets and beats is referenced, improving speeds for users. The cache
                              will only store information being used, so if the user opts to never change the algorithm, the
-                             computation will never be calculated nor stored.
+                             computation will never be calculated or stored.
 
-- **Audio Playback & Export:**  With excerpts, you can use basic playback options to listen to it within the program, and volume controls
-                                to tailor to your liking. An export option is also available, that will by default export the excerpt in .wav
+- **Audio Playback & Export:**  With excerpts, you can use basic playback options to listen to them within the program, and volume controls
+                                to tailor to your liking. An export option is also available, which will, by default, export the excerpt in .wav
                                 format. This can be changed by altering the file extension in exporter.py
 
 - **Multi-Format Support:**  By default, wav, flac, ogg, and aiff are supported. With FFmpeg installed, mp3, mp4, wma, and aac become available
@@ -196,7 +196,7 @@ The application caches analysis results to dramatically improve performance:
 Beat detection is the most "normal" sounding kind of excerpt because it sounds most like music to our ears. This is what you have
 listened to your whole life, because the rhythm starts on the first beat and ends on the last.
 
-Onset detection starts at the beginning of a random sound, and can feel more jarring compared to Beat detection, but is integral to 
+Onset detection starts at the beginning of a random sound and can feel more jarring compared to Beat detection, but is integral to 
 the image intended for this program. This is a random sampler, used for producers and musicians to find inspiration and samples in their own
 music. If every clip is "perfectly" synced, the program loses some of the purpose it was intended for when considering true randomness.
 Onset detection is a compromise between being truly random and still being usable.
@@ -204,7 +204,7 @@ Onset detection is a compromise between being truly random and still being usabl
 ## Limitations
 
 - Beat mode currently only supports 4/4 time signature
-- Can not choose to start on first beat, it could be any beat in 4/4
+- Can not choose to start on the first beat, it could be any beat in 4/4
 
 ## Future Enhancements
 
