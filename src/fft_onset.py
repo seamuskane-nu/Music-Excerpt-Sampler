@@ -2,8 +2,8 @@
 
 from typing import Tuple
 import numpy as np
-import scipy.io.wavfile as wavfile
 from scipy.signal import get_window
+import librosa
 
 def audio_loader(file_path:str) -> Tuple[np.array, float]:
     """ Uses log spectral flux style onset detection with ffts
@@ -15,7 +15,18 @@ def audio_loader(file_path:str) -> Tuple[np.array, float]:
     """
     # load the audio into samplerate, and list of audio samples
     try:
-        samplerate, data = wavfile.read(file_path)
+        # function changed to use librosa
+        # scipy only uses wav while librosa can use all formats
+        # otherwise I can't accomodate entire music library of various formats
+        # scipy = just wav, librosa = all
+        y, sr = librosa.load(file_path, sr=None, mono=True)
+        max_amplitude = np.max(np.abs(y))
+        if max_amplitude > 0:
+            normalized_data = y / max_amplitude
+        else:
+            normalized_data = y
+        return normalized_data, sr
+
     except FileNotFoundError:
         print(f"Error: file {file_path} was not found")
         return None, None
@@ -23,17 +34,9 @@ def audio_loader(file_path:str) -> Tuple[np.array, float]:
         print(f"An error occurred: {e}")
         return None, None
 
-
-    # convert audio samples to float format if not already there
-    if data.dtype == np.int16:
-        data = data.astype(np.float32) / 32768.0
-    elif data.dtype == np.uint8:
-        data = (data.astype(np.float32) - 128.0) / 128.0
-    elif data.dtype == np.int32:
-        data = data.astype(np.float32) / 2147483648.0
-
+    """
+    # Uncomment to use with scipy
     # find max amplitude
-    max_amplitude = np.max(np.abs(data))
 
     # normalize values to be between -1 and 1
     if max_amplitude > 0:
@@ -45,6 +48,7 @@ def audio_loader(file_path:str) -> Tuple[np.array, float]:
     mono_normalized_data = np.mean(normalized_data, axis=1)
 
     return mono_normalized_data, samplerate
+    """
 
 def window_fft(signal: np.array, frame_size: int = 2048, hop_size:int = 512) -> None:
     """

@@ -147,6 +147,7 @@ class MusicExcerptSampler:
                 f"[{duration}s ({self.last_mode_info})]")
         else:
             print(f"Excerpt: {info['start_time']:.2f}s - {info['end_time']:.2f}s [{duration:.2f}s]")
+        print((f"Onset Algorithm: {self.algorithm}\n"))
 
         print(f"Status: {playing}")
         print(f"Volume: {self.player.get_volume_percent()}")
