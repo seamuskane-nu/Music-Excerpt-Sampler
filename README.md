@@ -1,6 +1,6 @@
 # Music Excerpt Sampler
 
-An intelligent audio sampling tool that selects contextually meaningful excerpts from your 
+An intelligent audio sampling tool that selects contextual excerpts from your 
 music library using beat-detection, BPM analysis, and custom onset detection algorithms.
 
 ## Features
